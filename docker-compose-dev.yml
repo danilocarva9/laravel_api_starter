@@ -10,7 +10,7 @@ services:
           user: laravel
           uid: 1000
           gid: 1000
-        context: ./dockerfiles
+        context: ./docker
         dockerfile: nginx.dockerfile
       container_name: nginx
       restart: unless-stopped
@@ -33,7 +33,7 @@ services:
       ports:
         - "3306:3306"
       volumes:
-        - ./volumes/mysql:/var/lib/mysql
+        - ./docker/volumes/mysql:/var/lib/mysql
       environment:
         MYSQL_DATABASE: homestead
         MYSQL_USER: homestead
@@ -50,7 +50,7 @@ services:
           user: laravel
           uid: 1000
           gid: 1000
-        context: ./dockerfiles
+        context: ./docker
         dockerfile: php.dockerfile
       container_name: php
       volumes:

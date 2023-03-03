@@ -12,6 +12,6 @@ RUN addgroup -g $gid --system $user
 RUN adduser -G $user --system -D -s /bin/sh -u $uid $user
 RUN sed -i "s/user  nginx/user $user/g" /etc/nginx/nginx.conf
 
-ADD ./nginx/default.conf /etc/nginx/conf.d/
+ADD ./configs/nginx/default.conf /etc/nginx/conf.d/
 
 RUN mkdir -p /var/www/app
