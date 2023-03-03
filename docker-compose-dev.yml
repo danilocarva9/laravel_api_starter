@@ -33,7 +33,7 @@ services:
       ports:
         - "3306:3306"
       volumes:
-        - ./docker_configs/mysql:/var/lib/mysql
+        - ./volumes/mysql:/var/lib/mysql
       environment:
         MYSQL_DATABASE: homestead
         MYSQL_USER: homestead
@@ -57,10 +57,8 @@ services:
         - ./src:/var/www/app
       ports:
         - "9000:9000"
-      env_file:
-        - ./src/.env.example
       environment:
-        - "DB_HOST=127.0.0.1"
+        - "DB_HOST=mysql"
         - "DB_PORT=3306"
         - "DB_DATABASE=homestead"
         - "DB_USERNAME=homestead"
