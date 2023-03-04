@@ -1,1 +1,4 @@
 /docker/volumes
+/docker/.DS_Store
+.DS_Store
+/.idea
