@@ -25,7 +25,7 @@ RUN sed -i "s/group = www-data/group = $user/g" /usr/local/etc/php-fpm.d/www.con
 RUN echo "php_admin_flag[log_errors] = on" >> /usr/local/etc/php-fpm.d/www.conf
 
 #Set workign directory
-WORKDIR /var/www/app
+WORKDIR /var/www/html
 
 USER $user
 

@@ -14,4 +14,4 @@ RUN sed -i "s/user  nginx/user $user/g" /etc/nginx/nginx.conf
 
 ADD ./configs/nginx/default.conf /etc/nginx/conf.d/
 
-RUN mkdir -p /var/www/app
+RUN mkdir -p /var/www/html
