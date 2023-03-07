@@ -1,66 +1,86 @@
 version: '3'
 
 services:
-    nginx:
-      build:
-        args:
-          user: laravel
-          uid: 1000
-          gid: 1000
-        context: ./docker
-        dockerfile: nginx.dockerfile
-      container_name: nginx
-      restart: unless-stopped
-      ports:
-        - "8088:80"
-      volumes:
-        - ./src/api_gateway:/var/www/html:delegated
-      depends_on:
-        - php
-        - mysql
-      networks:
-        - microservices
+  #Server #01
+  nginx:
+    build:
+      args:
+        user: laravel
+        uid: 1000
+        gid: 1000
+      context: ./docker
+      dockerfile: nginx.dockerfile
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src/api:/var/www/html:delegated
+    depends_on:
+      - api
+      - mysql
+    networks:
+      - api_network
 
-    php:
-      build:
-        args:
-          user: laravel
-          uid: 1000
-          gid: 1000
-        context: ./docker
-        dockerfile: php.dockerfile
-      container_name: php
-      volumes:
-        - ./src/api_gateway:/var/www/html:delegated
-      environment:
-        - "DB_HOST=mysql"
-        - "DB_PORT=3306"
-        - "DB_DATABASE=homestead"
-        - "DB_USERNAME=homestead"
-        - "DB_PASSWORD=secret"
-      networks:
-        - microservices
+  #Database #01
+  mysql:
+    #image: mysql
+    image: arm64v8/mysql:oracle #mysql image for mac m1 Silicon Valley support
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/volumes/mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - api_network
 
-    mysql:
-      #image: mysql
-      image: arm64v8/mysql:oracle #mysql image for mac m1 Silicon Valley support
-      container_name: mysql
-      restart: unless-stopped
-      tty: true
-      ports:
-        - "3306:3306"
-      volumes:
-        - ./docker/volumes/mysql:/var/lib/mysql
-      environment:
-        MYSQL_DATABASE: homestead
-        MYSQL_USER: homestead
-        MYSQL_PASSWORD: secret
-        MYSQL_ROOT_PASSWORD: secret
-        SERVICE_TAGS: dev
-        SERVICE_NAME: mysql
-      networks:
-        - microservices
+  #Redis Caching $01
+  redis:
+    build:
+      context: ./docker
+      dockerfile: redis.dockerfile
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/volumes/redis:/data
+    networks:
+      - queue_network
 
+  #APIGateway #01
+  api:
+    build:
+      args:
+        user: laravel
+        uid: 1000
+        gid: 1000
+      context: ./docker
+      dockerfile: php.dockerfile
+    container_name: api
+    volumes:
+      - ./src/api:/var/www/html:delegated
+    environment:
+      - "DB_HOST=mysql"
+      - "DB_PORT=3306"
+      - "DB_DATABASE=homestead"
+      - "DB_USERNAME=homestead"
+      - "DB_PASSWORD=secret"
+    networks:
+      - api_network
+      - queue_network
+
+#Networks
 networks:
-  microservices:
+  api_network:
+    driver: bridge
+  queue_network:
     driver: bridge
